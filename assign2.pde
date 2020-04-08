@@ -116,6 +116,16 @@ void draw() {
       
         
       //groundhogmove
+      if(groundhogY+80>height){
+        groundhogY=height-80;
+      }
+      if(groundhogX+80>width){
+        groundhogX=width-80;
+      }
+      if(groundhogX<0){
+        groundhogX=0;
+      }
+      
       if(downPressed){
         groundhogY+=groundhogSpeed;
         image(groundhogDown,groundhogX,groundhogY);
