@@ -12,7 +12,7 @@ final int BUTTON_RIGHT = 392;
 final int BUTTON_TOP= 360;
 final int BUTTON_BOTTOM= 420;
 
-float groundhogSpeed=80;
+float groundhogSpeed=20;
 
 int role_W=80;
 
@@ -116,6 +116,7 @@ void draw() {
       
         
       //groundhogmove
+      
       if(groundhogY+80>height){
         groundhogY=height-80;
       }
@@ -128,16 +129,19 @@ void draw() {
       
       if(downPressed){
         groundhogY+=groundhogSpeed;
+        
         image(groundhogDown,groundhogX,groundhogY);
       }
         
       if(leftPressed){
         groundhogX-=groundhogSpeed;
+        
         image(groundhogLeft,groundhogX,groundhogY);
       }
         
       if(rightPressed){
         groundhogX+=groundhogSpeed;
+        
         image(groundhogRight,groundhogX,groundhogY);
       }
         
@@ -173,7 +177,7 @@ void draw() {
       //cabbage&&groundhog
       if(groundhogY==cabbageY){
         if(groundhogX>cabbageX&&groundhogX<cabbageX+role_W){
-          cabbageY=-50;
+          cabbageY=-100;
           if(lifeY2==10){
             lifeY3=10;
           }
@@ -208,6 +212,8 @@ void draw() {
 }
 
 
+int nowTime,lastTime;
+
 void keyPressed(){
   if (key == CODED) { // detect special keys 
     switch (keyCode) {
@@ -215,15 +221,27 @@ void keyPressed(){
       
       case DOWN:
         downPressed = true;
+         nowTime = millis();
+      if(- lastTime >=  250){ 
+        lastTime = millis();
+    }
         break;
       case LEFT:
         leftPressed = true;
+         nowTime = millis();
+      if(- lastTime >=  250){ 
+        lastTime = millis();
+    }
         break;
       case RIGHT:
         rightPressed = true;
+         nowTime = millis();
+      if(- lastTime >=  250){ 
+        lastTime = millis();
+    }
         break;
       
-        
+       
     }
   }
   
