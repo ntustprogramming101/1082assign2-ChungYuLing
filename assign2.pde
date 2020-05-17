@@ -5,7 +5,11 @@ final int GAME_START = 0;
 final int GAME_RUN = 1;
 final int GAME_OVER = 2;
 final int GAME_WIN = 3;
-int gameState = GAME_START;
+
+int gameState;
+int hit = 2;
+int actionFrame;
+
 
 final int BUTTON_LEFT= 248;
 final int BUTTON_RIGHT = 392;
@@ -21,22 +25,17 @@ int lifeX2=80;
 int lifeX3=150;
 int lifeY1=10;
 int lifeY2=10;
-int lifeY3=-50;
+int lifeY3=10;
 
 boolean downPressed = false;
 boolean leftPressed = false;
 boolean rightPressed = false;
 
-float soldierX=random(-80,480);
-float soldierXSpeed=3;
-float soldierYi=floor(random(2,6));
-float soldierY=80*soldierYi;
+float soldierX,soldierXSpeed,soldierYi,soldierY;
+float cabbageX,cabbageY;
+float groundhogX,groundhogY;
+float groundhogX2,groundhogY2;
 
-float cabbageX=(floor(random(0,7))+1)*80;
-float cabbageY=floor(random(2,6))*80;
-
-int groundhogX=320;
-int groundhogY=80;
 
 
 
@@ -44,7 +43,7 @@ int groundhogY=80;
 
 void setup() {
 	size(640, 480, P2D);
-  frameRate (60);
+  
   bg=loadImage("img/bg.jpg");
   cabbage=loadImage("img/cabbage.png");
   title=loadImage("img/title.jpg");
@@ -60,6 +59,21 @@ void setup() {
   life=loadImage("img/life.png");
   soil=loadImage("img/soil.png");
   soldier=loadImage("img/soldier.png"); 
+  
+  soldierX=random(-1,6)*role_W;
+  soldierXSpeed=3;
+  soldierY=floor(random(2,6))*80;
+
+  cabbageX=(floor(random(0,7))+1)*role_W;
+  cabbageY=floor(random(2,6))*80;
+
+  groundhogX=role_W*4;
+  groundhogY=role_W;
+  
+  frameRate (60);
+  gameState = GAME_START;
+  lastTime = millis();
+  
 }
 
 void draw() {
@@ -86,10 +100,24 @@ void draw() {
     case GAME_RUN:
       //background
       image(bg,0,0,640,480);
-      image(soil,0,160,640,320);
-      image(life,lifeX1,lifeY1);
-      image(life,lifeX2,lifeY2);
-      image(life,lifeX3,lifeY3);
+      image(soil,0,role_W*2,640,320);
+      
+      if(hit==0){
+        gameState = GAME_OVER;
+      }
+      if(hit==1){
+        image(life,lifeX1,lifeY1);
+      }
+      if(hit==2){
+        image(life,lifeX1,lifeY1);
+        image(life,lifeX2,lifeY2);
+      }
+      if(hit==3){
+        image(life,lifeX1,lifeY1);
+        image(life,lifeX2,lifeY2);
+        image(life,lifeX3,lifeY3);
+      }
+      
       //lawn
       noStroke();
       fill(124,204,25);
@@ -100,92 +128,108 @@ void draw() {
       fill(253,184,19);
       ellipse(590,50,120,120);
       
-    
-      
-      
+
       //soldier
-      image(soldier,soldierX,soldierY);
       soldierX+=soldierXSpeed;
+      //soldierX%=(width+role_W);
       if(soldierX>640){
         soldierX=-80;
       }
+      image(soldier,soldierX,soldierY);
+            
+      //soldier&groundhog
+      if(groundhogX+role_W>soldierX-role_W && groundhogX<soldierX){
+        if(groundhogY+role_W>soldierY&&groundhogY<soldierY+role_W){
+          hit=hit-1;
+                    
+          if(hit>0&&hit<=3){
+        groundhogX=role_W*4;
+        groundhogY=role_W;
+        }
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
+      }
+    }
       
       //cabbage
       image(cabbage,cabbageX,cabbageY);
-      
+      //cabbage&&groundhog
+      if(groundhogX+role_W > cabbageX && groundhogX < cabbageX+role_W
+      && groundhogY+role_W > cabbageY && groundhogY < cabbageY+role_W){
+          cabbageY=-100;
+          hit=hit+1;
+        
+      }
       
         
       //groundhogmove
       
-      if(groundhogY+80>height){
-        groundhogY=height-80;
-      }
-      if(groundhogX+80>width){
-        groundhogX=width-80;
-      }
-      if(groundhogX<0){
-        groundhogX=0;
+      
+      
+      if(downPressed==false&&leftPressed==false&&rightPressed==false){
+        image(groundhogIdle,groundhogX,groundhogY);
       }
       
       if(downPressed){
-        groundhogY+=groundhogSpeed;
-        
-        image(groundhogDown,groundhogX,groundhogY);
+        actionFrame++;
+        if(actionFrame>0 && actionFrame<15){
+          groundhogY+=role_W/15.0;        
+          image(groundhogDown,groundhogX,groundhogY);
+      }else{
+        groundhogY=groundhogY2+role_W;
+        downPressed = false;
+      }
       }
         
       if(leftPressed){
-        groundhogX-=groundhogSpeed;
-        
-        image(groundhogLeft,groundhogX,groundhogY);
+        actionFrame++;
+        if(actionFrame>0 && actionFrame<15){
+          groundhogX-=role_W/15.0;                
+          image(groundhogLeft,groundhogX,groundhogY);
+      }else{
+        groundhogX=groundhogX2-role_W;
+        leftPressed = false;
+      }
       }
         
       if(rightPressed){
-        groundhogX+=groundhogSpeed;
-        
-        image(groundhogRight,groundhogX,groundhogY);
+        actionFrame++;
+        if(actionFrame>0 && actionFrame<15){
+          groundhogX+=role_W/15.0;
+          image(groundhogRight,groundhogX,groundhogY);
+      }else{
+        groundhogX=groundhogX2+role_W;
+        rightPressed = false;
+      }
       }
         
-      else{
+      /*else{
         image(groundhogIdle,groundhogX,groundhogY);
-      }
+      }*/
         
-      //soldier&groundhog
-      if(groundhogY==soldierY){
-        if(groundhogX>soldierX&&groundhogX<soldierX+role_W){
-          if(lifeY2==10){
-            if(lifeY3==10){
-              lifeY3=-50;
-            }
-            else{
-              lifeY2=-50;
-            }
-          }
-        }
-      }
-      if(lifeY2==-50){
+      
+      /*if(lifeY2==-50){
         if(groundhogY==soldierY){
           if(groundhogX>soldierX&&groundhogX<soldierX+role_W){
             gameState = GAME_OVER;
           }
           }
-        }
+        }*/
       
-
-              
-        
-        
-      //cabbage&&groundhog
-      if(groundhogY==cabbageY){
-        if(groundhogX>cabbageX&&groundhogX<cabbageX+role_W){
-          cabbageY=-100;
-          if(lifeY2==10){
-            lifeY3=10;
-          }
-          else{
-            lifeY2=10;
-          }
-        }
+      if(groundhogY>=height-role_W){
+        groundhogY=height-role_W;
       }
+       if(groundhogY<=0){
+        groundhogY=0;
+      }
+      if(groundhogX>width-role_W){
+        groundhogX=width-role_W;
+      }
+      if(groundhogX<=0){
+        groundhogX=0;
+      }
+     
        
  
     break;
@@ -198,9 +242,21 @@ void draw() {
       && mouseY > BUTTON_TOP && mouseY < BUTTON_BOTTOM){
         image(restartHovered, BUTTON_LEFT, BUTTON_TOP);
         if(mousePressed){
+          downPressed = false;
+          leftPressed = false;
+          rightPressed = false;
+          soldierX=random(-1,6)*role_W;
+          soldierXSpeed=3;          
+          soldierY=floor(random(2,6))*80;
+
+          cabbageX=(floor(random(0,7))+1)*role_W;
+          cabbageY=floor(random(2,6))*role_W;
+
+          hit=2;
+          groundhogX=role_W*4;
+          groundhogY=role_W;
           gameState = GAME_RUN;
-          groundhogX=320;
-          groundhogY=80;
+          
 
         }
       }else{
@@ -212,32 +268,37 @@ void draw() {
 }
 
 
-int nowTime,lastTime;
+float nowTime,lastTime;
 
 void keyPressed(){
+  nowTime = millis();  
   if (key == CODED) { // detect special keys 
     switch (keyCode) {
      
       
       case DOWN:
+      if(nowTime - lastTime >  250){ 
         downPressed = true;
-         nowTime = millis();
-      if(- lastTime >=  250){ 
-        lastTime = millis();
+        actionFrame = 0;
+        groundhogY2=groundhogY;            
+        lastTime = nowTime;
     }
         break;
       case LEFT:
+        if(nowTime - lastTime >  250){ 
         leftPressed = true;
-         nowTime = millis();
-      if(- lastTime >=  250){ 
-        lastTime = millis();
+        actionFrame = 0;
+        groundhogX2=groundhogX;             
+        lastTime = nowTime;
     }
         break;
       case RIGHT:
+        if(nowTime - lastTime >  250){ 
         rightPressed = true;
-         nowTime = millis();
-      if(- lastTime >=  250){ 
-        lastTime = millis();
+        actionFrame = 0;
+        groundhogX2=groundhogX;
+              
+        lastTime = nowTime;
     }
         break;
       
@@ -247,7 +308,7 @@ void keyPressed(){
   
 }
 ////////
-void keyReleased(){
+/*void keyReleased(){
   if (key == CODED) {
     switch (keyCode) {
       
@@ -266,3 +327,4 @@ void keyReleased(){
   }
   
 }
+*/
